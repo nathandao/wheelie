@@ -21,4 +21,3 @@ void loop() {
   SPI.transfer(0);
   SPI.transfer(0);
 }
-
