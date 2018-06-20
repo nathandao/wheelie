@@ -3,15 +3,13 @@
 
 mcp4728 dac = mcp4728(0); // instantiate mcp4728 object, Device ID = 0
 
-uint32_t current, target;
+uint32_t val_0, targ_0, val_1, targ_1;
+
 uint32_t TARGET_SPEED = 50;
 
 uint32_t towardsTarget(uint32_t cur, uint32_t targ) {
   int32_t dist = targ-cur;
   int32_t sig = abs(dist)/dist;
-
-  /* Serial.print("sig: ");Serial.print(sig);Serial.print("\n"); */
-  /* Serial.print("target: ");Serial.print(target);Serial.print("\n"); */
   
   if(abs(dist) > TARGET_SPEED) {
     return cur + sig*TARGET_SPEED;
@@ -34,18 +32,23 @@ void setup() {
   dac.eepromWrite();
   delay(100);
 
-  current = 2500;
-  target = 4999;
+  val_0 = 2500; targ_0 = 4999;
+  val_1 = 2500; targ_1 = 0;
 }
 
 void loop() {
-  if(current <= 0) {target = 4999;}
-  if(current >= 4999) {target = 0;}
+  if(val_0 <= 0) {targ_0 = 4999;}
+  if(val_0 >= 4999) {targ_0 = 0;}
+  if(val_1 <= 0) {targ_1 = 4999;}
+  if(val_1 >= 4999) {targ_1 = 0;}
+  
+  uint32_t next_0 = towardsTarget(val_0, targ_0);
+  uint32_t next_1 = towardsTarget(val_1, targ_1);
 
-  uint32_t next = towardsTarget(current, target);
-  Serial.print("now: "); Serial.println(next);
-  dac.voutWrite(0, next);
-
-  current = next;
+  dac.voutWrite(next_0, next_1, 0, 0);
+  
+  val_0 = next_0;
+  val_1 = next_1;
+  
   delay(1);
 }
