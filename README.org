@@ -1,0 +1,11 @@
+* This is wheelie
+  The goal for this project is to have basic control of a wheelchair
+  with a microcontroller.
+* Requirements
+  Harware:
+  - Sparkfun esp32 Thing
+  - MCP4728 evaluation board
+
+  Software:
+  - Benoit Schilling's [[https://github.com/BenoitSchillings/mcp4728][mcp4728 arduino library]]
+
