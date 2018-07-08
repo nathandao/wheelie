@@ -10,7 +10,9 @@ uint32_t DOWN  = 36;
 
 uint32_t val_0, targ_0, val_1, targ_1;
 
-uint32_t TARGET_SPEED = 10;
+uint32_t TARGET_SPEED = 500;
+uint32_t MAXSPEED = 4150;
+uint32_t MINSPEED = 850;
 
 uint32_t towardsTarget(uint32_t cur, uint32_t targ) {
   int32_t dist = targ-cur;
@@ -23,7 +25,7 @@ uint32_t towardsTarget(uint32_t cur, uint32_t targ) {
 }
 
 void setup() {
-  Serial.begin(9600);
+  //Serial.begin(9600);
 
   pinMode(LEFT , INPUT);
   pinMode(RIGHT, INPUT);
@@ -31,6 +33,7 @@ void setup() {
   pinMode(DOWN , INPUT);
   
   dac.begin();
+  Wire.setClock(100000);
 
   // Set vdd to 5000mV and channels 0 and 1 to use that as vref
   // Usable voltage range is 0-4999mV
@@ -43,8 +46,8 @@ void setup() {
   dac.eepromWrite();
   delay(100);
 
-  val_0 = 2500; targ_0 = 4999;
-  val_1 = 2500; targ_1 = 0;
+  val_0 = 2500; targ_0 = MAXSPEED;
+  val_1 = 2500; targ_1 = MINSPEED;
 }
 
 void loop() {
@@ -55,23 +58,23 @@ void loop() {
   uint32_t right = digitalRead(RIGHT);
 
   if(up == LOW) {
-    targ_0 = 4999;
+    targ_0 = MAXSPEED;
   } else if (down == LOW) {
-    targ_0 = 0;
+    targ_0 = MINSPEED;
   } else {
     targ_0 = 2500;
   }
 
   if(left == LOW) {
-    targ_1 = 4999;
+    targ_1 = MAXSPEED;
   } else if (right == LOW) {
-    targ_1 = 0;
+    targ_1 = MINSPEED;
   } else {
     targ_1 = 2500;
   }
 
-  Serial.print("1: "); Serial.print(targ_0);
-  Serial.print(" 2: "); Serial.println(targ_1);
+  /* Serial.print("1: "); Serial.print(targ_0); */
+  /* Serial.print(" 2: "); Serial.println(targ_1); */
 
   uint32_t next_0 = towardsTarget(val_0, targ_0);
   uint32_t next_1 = towardsTarget(val_1, targ_1);
@@ -82,4 +85,6 @@ void loop() {
   // End loop
   val_0 = next_0;
   val_1 = next_1;
+
+  //  delay(10);
 }
