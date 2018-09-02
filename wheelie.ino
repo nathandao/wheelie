@@ -4,10 +4,12 @@
 mcp4728 dac = mcp4728(0); // instantiate mcp4728 object, Device ID = 0
 
 
-// Maximum and minimum values that can be set for joystick before
-// wheelchair controller goes into error mode
-uint32_t MAXSPEED = 4150;
+// Maximum, minimum and stopped values for joystick. If values higher than
+// max or lower than min are set, the wheelchair controller goes into
+// error mode. These values have been found by experimentation.
+uint32_t MAXSPEED = ;
 uint32_t MINSPEED = 850;
+uint32_t STOPPED = 2500;
 
 void setup() {
   Serial.begin(9600);
@@ -22,11 +24,23 @@ void setup() {
 
   // We don't want the wheelchair to start moving on power up so set
   // power on voltages to 2500 and write those to eeprom.
-  dac.outWrite(2500,2500,2500,0);
+  dac.outWrite(STOPPED,STOPPED,STOPPED,0);
   dac.eepromWrite();
   delay(100);
   val_0 = 2500; targ_0 = MAXSPEED;
   val_1 = 2500; targ_1 = MINSPEED;
+}
+
+
+// Takes two signed 8 bit values for x and y. The value 0 will represent being still.
+void joystickWrite(int8_t x, int8_t y) {
+  // The third channel needs to be set to the middle of Vdd and Vss or
+  // the controller goes into error mode. the fourth channel is not
+  // used, so it is set to 0.
+  uint32_t xout = STOPPED + (x * (MAXSPEED - MINSPEED))/256;
+  uint32_t yout = STOPPED + (y * (MAXSPEED - MINSPEED))/256;
+    
+  dac.voutWrite(xout, yout, STOPPED, 0);
 }
 
 void loop() {
