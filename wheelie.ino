@@ -11,6 +11,10 @@ uint32_t MAXSPEED = 4150;
 uint32_t MINSPEED = 850;
 uint32_t STOPPED = 2500;
 
+bool moving = false;
+unsigned long stopAt = 0;
+
+
 void setup() {
   Serial.begin(9600);
 
@@ -44,6 +48,13 @@ void joystickWrite(int8_t x, int8_t y) {
 
 void loop() {
   int x = 0, y = 0;
+
+  unsigned long now = millis();
+
+  if(moving && stopAt <= now) {
+    joystickWrite(0,0);
+  }
+
   
   if(Serial.available() >=2 ) {
     x = Serial.read();
@@ -51,6 +62,9 @@ void loop() {
 
     Serial.write("got bytes "); Serial.write(x); Serial.write(" ") ;Serial.write(y); Serial.write("\n");
 
+    moving = true;
+    stopAt = now + 1000;
+    
     joystickWrite(x, y);
   }
 }
