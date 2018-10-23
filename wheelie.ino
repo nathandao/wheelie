@@ -10,10 +10,12 @@ mcp4728 dac = mcp4728(0); // instantiate mcp4728 object, Device ID = 0
 uint32_t MAXSPEED = 4150;
 uint32_t MINSPEED = 850;
 uint32_t STOPPED = 2500;
+unsigned long KEEPALIVETIME = (1000*30);
 
 bool moving = false;
 unsigned long stopAt = 0;
 
+unsigned long lastMovement = 0;
 
 void setup() {
   Serial.begin(9600);
@@ -44,6 +46,17 @@ void joystickWrite(int8_t x, int8_t y) {
   uint32_t yout = STOPPED + (y * (MAXSPEED - MINSPEED))/256;
   
   dac.voutWrite(xout, yout, STOPPED, 0);
+  lastMovement = millis();
+}
+
+void keepAlive() {
+  if(lastMovement < millis() - KEEPALIVETIME) {
+    joystickWrite(0,10);
+    delay(100);
+    joystickWrite(0,-10);
+    delay(100);
+    joystickWrite(0,0);
+  }
 }
 
 void loop() {
@@ -55,7 +68,6 @@ void loop() {
     joystickWrite(0,0);
   }
 
-  
   if(Serial.available() >=2 ) {
     x = Serial.read();
     y = Serial.read();
@@ -67,4 +79,6 @@ void loop() {
     
     joystickWrite(x, y);
   }
+  
+  keepAlive();
 }
