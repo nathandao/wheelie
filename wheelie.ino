@@ -50,12 +50,17 @@ void joystickWrite(int8_t x, int8_t y) {
 }
 
 void keepAlive() {
-  if(lastMovement < millis() - KEEPALIVETIME) {
-    joystickWrite(0,10);
-    delay(100);
-    joystickWrite(0,-10);
-    delay(100);
+  unsigned long now = millis();
+  if(lastMovement + KEEPALIVETIME < now ) {
+    joystickWrite(20,0);
+    delay(500);
     joystickWrite(0,0);
+    delay(1000);
+    joystickWrite(-20,0);
+    delay(500);
+    joystickWrite(0,0);
+    lastMovement = now;
+    
   }
 }
 
@@ -75,7 +80,7 @@ void loop() {
     Serial.write("got bytes "); Serial.write(x); Serial.write(" ") ;Serial.write(y); Serial.write("\n");
 
     moving = true;
-    stopAt = now + 1000;
+    stopAt = now + 3000;
     
     joystickWrite(x, y);
   }
